@@ -24,14 +24,14 @@
           "value": "1xkrVje_TMbLpV9nJTVpV_-H3A1TNh6v_gqt2P7iDzq4",
           "mode": "list",
           "cachedResultName": "StormWatch",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xkrVje_TMbLpV9nJTVpV_-H3A1TNh6v_gqt2P7iDzq4/edit?usp=drivesdk"
+          "cachedResultUrl": ""
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xkrVje_TMbLpV9nJTVpV_-H3A1TNh6v_gqt2P7iDzq4/edit#gid=0"
+          "cachedResultUrl": ""
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -121,7 +121,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.openweathermap.org/data/2.5/forecast?q={{ $json.city }}&appid=7e28ea146c5d12e7a169308c12171c33&units=metric ",
+        "url": "=https://api.openweathermap.org/data/2.5/forecast?q={{ $json.city }}&appid=Your API Key&units=metric ",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
