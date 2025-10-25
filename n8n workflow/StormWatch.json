@@ -1,0 +1,311 @@
+{
+  "name": "StormWatch",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "6b0ef129-bcca-4d40-a7e8-435d3d373236",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -384,
+        -48
+      ],
+      "id": "f38f44e2-1deb-4b45-ba23-a3b6830a3051",
+      "name": "Webhook",
+      "webhookId": "6b0ef129-bcca-4d40-a7e8-435d3d373236"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1xkrVje_TMbLpV9nJTVpV_-H3A1TNh6v_gqt2P7iDzq4",
+          "mode": "list",
+          "cachedResultName": "StormWatch",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xkrVje_TMbLpV9nJTVpV_-H3A1TNh6v_gqt2P7iDzq4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xkrVje_TMbLpV9nJTVpV_-H3A1TNh6v_gqt2P7iDzq4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fullName": "={{ $json.query.fullName }}",
+            "email": "={{ $json.query.email }}",
+            "city": "={{ $json.query.city }}",
+            "time": "={{ $json.query.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -176,
+        -48
+      ],
+      "id": "d8d71c69-7c22-43e3-bb0c-d44e4ecc0bab",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CNmxLOSnCy0ENwAS",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -416,
+        -272
+      ],
+      "id": "50fbebe7-ea7f-4f40-85e1-1cd63b1ba53b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.openweathermap.org/data/2.5/forecast?q={{ $json.city }}&appid=7e28ea146c5d12e7a169308c12171c33&units=metric ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        -272
+      ],
+      "id": "3771cbff-9728-49d2-a949-5d69f5f4ba48",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Append row in sheet').item.json.email }}",
+        "subject": "={{ $json.output.subject }}\n",
+        "message": "={{ $json.output.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        -256
+      ],
+      "id": "ec98cc20-4e60-4f1c-bcd7-9e0aaf1ada7a",
+      "name": "Send a message",
+      "webhookId": "9ea2f429-803c-472b-ab15-69d7939f4bfa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Wp5gfhQsmWCGuShX",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an intelligent weather assistant named \"StormAI\" working for the app StormWatch.\n\nYour job is to analyze the forecast for the given date and return a structured weather summary",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an intelligent weather assistant named \"StormAI\".\nYou will receive 3-hourly weather forecast data for a given city.\n\nAnalyze the data for the given date and write:\n1️⃣ A timeline summary (morning / afternoon / evening / night) describing weather changes.\n2️⃣ Highlight rain / cloudy / clear trends and their time frames.\n3️⃣ Give overall advice for the day (e.g. carry umbrella, stay hydrated, avoid outdoor travel).\n4️⃣ Mention temperature trend (average, high, low).\n5️⃣ Format it nicely as an HTML email with emojis, clear sections and short sentences.\n\nData:\nuser name: {{ $('Append row in sheet').item.json.fullName }}\nCity: {{ $('Append row in sheet').item.json.city }}\nDate: {{ $json.list[2].dt_txt }}\nForecasts: {{ $('HTTP Request').item.json.list[3] }}\n{{ $('HTTP Request').item.json.list[4] }}\n{{ $('HTTP Request').item.json.list[5] }}\n{{ $('HTTP Request').item.json.list[6] }}\n{{ $('HTTP Request').item.json.list[7] }}\n{{ $('HTTP Request').item.json.list[8] }}\n{{ $('HTTP Request').item.json.list[9] }}\n{{ $('HTTP Request').item.json.list[10] }}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        -256
+      ],
+      "id": "aefc2de8-394f-4a62-ad5d-5965bfe92311",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "4bc1f163-6773-4f89-837a-f65648cf48de",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "uhYKixZblp4jQAyS",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"🌤️ Tomorrow’s Forecast for Colombo – Clear Skies with Evening Rain\",\n  \"body\": \"<h2>🌦️ Weather Summary for Colombo – 18 Oct</h2><h3>🌅 Morning (6AM–12PM)</h3><p>Sunny and pleasant, around 30°C.</p><h3>🌇 Afternoon (12PM–3PM)</h3><p>Hot with high UV levels. Use sunscreen 🌞</p><h3>🌆 Evening (3PM–9PM)</h3><p>Light rain expected after 6PM 🌧️</p><h3>🌙 Night (9PM–12AM)</h3><p>Cloudy with mild winds.</p><h3>📊 Daily Overview</h3><p>Average Temp: 28°C<br>High: 31°C<br>Low: 26°C</p><p>💡 Advice: Carry an umbrella and drink plenty of water to stay cool.</p>\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        -32
+      ],
+      "id": "4adbefa0-b6a2-4364-8ff2-e3ff7d658fc8",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b975c963-de87-4ac2-bc27-886cb29a741f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de081494e52686d009ae6820c71c3949e83e5636dfe1c3287eb107d56dedb9fe"
+  },
+  "id": "grWMkbu0mwUeH62b",
+  "tags": []
+}
